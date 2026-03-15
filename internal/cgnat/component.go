@@ -44,7 +44,8 @@ type Component struct {
 	poolIDMap  map[string]uint32
 	nextPoolID uint32
 
-	lifecycleSub events.Subscription
+	lifecycleSub   events.Subscription
+	programmedSub  events.Subscription
 }
 
 func NewComponent(deps component.Dependencies, ifMgr *ifmgr.Manager, vrfMgr *vrfmgr.Manager) (*Component, error) {
@@ -94,6 +95,7 @@ func (c *Component) Start(ctx context.Context) error {
 	}
 
 	c.lifecycleSub = c.eventBus.Subscribe(events.TopicSessionLifecycle, c.handleSessionLifecycle)
+	c.programmedSub = c.eventBus.Subscribe(events.TopicSessionProgrammed, c.handleSessionProgrammed)
 
 	c.logger.Info("CGNAT component started", "pools", len(cfg.CGNAT.Pools))
 	return nil
@@ -103,6 +105,9 @@ func (c *Component) Stop(ctx context.Context) error {
 	c.logger.Info("Stopping CGNAT component")
 	if c.lifecycleSub != nil {
 		c.lifecycleSub.Unsubscribe()
+	}
+	if c.programmedSub != nil {
+		c.programmedSub.Unsubscribe()
 	}
 	c.StopContext()
 	return nil
@@ -226,10 +231,25 @@ func (c *Component) handleSessionLifecycle(event events.Event) {
 
 	switch data.State {
 	case models.SessionStateActive:
+		if data.AccessType == models.AccessTypePPPoE {
+			return
+		}
+		if data.Protocol == models.ProtocolDHCPv6 {
+			return
+		}
 		c.handleSessionActivate(data)
 	case models.SessionStateReleased:
 		c.handleSessionRelease(data)
 	}
+}
+
+func (c *Component) handleSessionProgrammed(event events.Event) {
+	data, ok := event.Data.(*events.SessionLifecycleEvent)
+	if !ok {
+		return
+	}
+
+	c.handleSessionActivate(data)
 }
 
 func (c *Component) handleSessionActivate(data *events.SessionLifecycleEvent) {

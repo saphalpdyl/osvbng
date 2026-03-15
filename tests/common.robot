@@ -96,3 +96,16 @@ Verify BGP Session On Router
     [Arguments]    ${container}    ${neighbor_ip}
     ${output} =    Execute Vtysh On Router    ${container}    show bgp summary
     Should Contain    ${output}    ${neighbor_ip}
+
+Start VPP Trace
+    [Arguments]    ${container}    ${input_node}=af-packet-input    ${count}=50
+    ${rc}    ${output} =    Run And Return Rc And Output
+    ...    sudo docker exec ${container} vppctl -s ${VPPCTL_SOCK} trace add ${input_node} ${count}
+    Log    ${output}
+
+Dump VPP Trace
+    [Arguments]    ${container}
+    ${rc}    ${output} =    Run And Return Rc And Output
+    ...    sudo docker exec ${container} vppctl -s ${VPPCTL_SOCK} show trace
+    Log    VPP Trace:\n${output}    console=yes
+    RETURN    ${output}
