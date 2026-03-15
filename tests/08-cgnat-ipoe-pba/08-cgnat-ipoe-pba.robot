@@ -44,11 +44,12 @@ Verify BGP Session Established
     Wait Until Keyword Succeeds    12 x    10s
     ...    Verify BGP Session On Router    ${corerouter1}    10.254.0.1
 
-Establish Subscriber Sessions
+Start Subscriber Sessions
     Start BNG Blaster In Background    ${subscribers}
-    Wait For Sessions Established    ${bng1}    ${subscribers}    ${session-count}
 
 Verify Sessions Have IPv4 In Shared Address Space
+    Wait Until Keyword Succeeds    12 x    10s
+    ...    Verify Sessions In API    ${bng1}    ${session-count}
     ${output} =    Get osvbng API Response    ${bng1}    /api/show/subscriber/sessions
     Should Contain    ${output}    100.64.
 
@@ -63,6 +64,10 @@ Verify CGNAT Mappings Exist
 Verify Traffic Flowing
     Wait Until Keyword Succeeds    6 x    10s
     ...    Verify Traffic Flowing    ${subscribers}    expected_flows=${session-count}
+
+Verify BNG Blaster Sessions Established
+    Wait Until Keyword Succeeds    6 x    10s
+    ...    All Sessions Ready    ${bng1}    ${subscribers}    ${session-count}
 
 Verify Outside Addresses Advertised Via BGP
     ${output} =    Execute Vtysh On Router    ${corerouter1}    show ip bgp

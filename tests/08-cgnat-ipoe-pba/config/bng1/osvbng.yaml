@@ -26,6 +26,7 @@ subscriber-groups:
         default:
             access-type: ipoe
             ipv4-profile: default
+            ipv6-profile: default-v6
             vlans:
                 - svlan: "100-110"
                   cvlan: any
@@ -51,8 +52,38 @@ ipv4-profiles:
         dhcp:
             lease-time: 3600
 
+ipv6-profiles:
+    default-v6:
+        iana-pools:
+            - name: wan-link-pool
+              network: 2001:db8:0:1::/64
+              range_start: 2001:db8:0:1::1000
+              range_end: 2001:db8:0:1::ffff
+              gateway: 2001:db8:0:1::1
+              preferred_time: 3600
+              valid_time: 7200
+        pd-pools:
+            - name: subscriber-pd-pool
+              network: 2001:db8:100::/40
+              prefix_length: 56
+              preferred_time: 3600
+              valid_time: 7200
+        dns:
+            - 2001:4860:4860::8888
+            - 2001:4860:4860::8844
+
 dhcp:
     provider: local
+
+dhcpv6:
+    provider: local
+    dns_servers:
+        - 2001:4860:4860::8888
+        - 2001:4860:4860::8844
+    ra:
+        router_lifetime: 1800
+        max_interval: 600
+        min_interval: 200
 
 interfaces:
     loop0:
@@ -80,6 +111,8 @@ interfaces:
         address:
             ipv4:
                 - 100.64.0.1/32
+            ipv6:
+                - 2001:db8:0:1::1/128
         lcp: true
 
 protocols:
