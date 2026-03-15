@@ -412,6 +412,14 @@ func (c *Component) restoreFromOpDB() error {
 	return nil
 }
 
+func (c *Component) GetRunningConfig() (*cgnat.Config, error) {
+	cfg, err := c.cfgMgr.GetRunning()
+	if err != nil {
+		return nil, err
+	}
+	return cfg.CGNAT, nil
+}
+
 func (c *Component) GetPoolManager() *PoolManager {
 	return c.pools
 }
