@@ -16,13 +16,21 @@
         "outer-vlan-min": 100,
         "outer-vlan-max": 100,
         "inner-vlan-min": 2,
-        "inner-vlan-max": 6
+        "inner-vlan-max": 6,
+        "stream-group-id": 1
       }
     ]
   },
-  "session-traffic": {
-    "ipv4-pps": 10
-  },
+  "streams": [
+    {
+      "name": "CGNAT-UDP",
+      "stream-group-id": 1,
+      "type": "ipv4",
+      "direction": "both",
+      "pps": 1,
+      "nat": true
+    }
+  ],
   "dhcp": {
     "enable": true
   },

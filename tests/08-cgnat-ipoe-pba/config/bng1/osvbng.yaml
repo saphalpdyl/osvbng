@@ -31,10 +31,6 @@ subscriber-groups:
                 - svlan: "100-110"
                   cvlan: any
                   interface: loop100
-            bgp:
-                enabled: true
-                advertise-pools: true
-                redistribute-connected: true
             aaa-policy: default-policy
             cgnat:
               policy: residential

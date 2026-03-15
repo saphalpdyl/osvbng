@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 *** Comments ***
-CGNAT IPoE + PBA smoke test.
-Verifies subscribers get shared address space IPs (100.64.x.x),
-CGNAT translates to outside addresses (203.0.113.x),
+CGNAT PPPoE + Deterministic NAT smoke test.
+Verifies PPPoE subscribers get shared address space IPs (100.64.x.x),
+CGNAT deterministic mode translates algorithmically to outside addresses,
 and traffic flows through NAT end-to-end.
 
 *** Settings ***
@@ -20,8 +20,8 @@ Suite Setup         Deploy CGNAT Topology
 Suite Teardown      Teardown CGNAT Topology
 
 *** Variables ***
-${lab-name}         osvbng-cgnat-ipoe-pba
-${lab-file}         ${CURDIR}/08-cgnat-ipoe-pba.clab.yml
+${lab-name}         osvbng-cgnat-pppoe-det
+${lab-file}         ${CURDIR}/11-cgnat-pppoe-det.clab.yml
 ${bng1}             clab-${lab-name}-bng1
 ${corerouter1}      clab-${lab-name}-corerouter1
 ${subscribers}      clab-${lab-name}-subscribers
@@ -54,13 +54,9 @@ Verify Sessions Have IPv4 In Shared Address Space
     ${output} =    Get osvbng API Response    ${bng1}    /api/show/subscriber/sessions
     Should Contain    ${output}    100.64.
 
-Verify CGNAT Pool Has Allocations
+Verify CGNAT Pool Configured
     ${output} =    Get osvbng API Response    ${bng1}    /api/show/cgnat/pools
     Should Contain    ${output}    residential
-
-Verify CGNAT Mappings Exist
-    ${output} =    Get osvbng API Response    ${bng1}    /api/show/cgnat/sessions
-    Should Contain    ${output}    203.0.113.
 
 Verify NAT Traffic Flowing
     Wait Until Keyword Succeeds    6 x    10s
@@ -78,7 +74,7 @@ Verify Outside Addresses Advertised Via BGP
 Deploy CGNAT Topology
     Deploy Topology    ${lab-file}
     Wait For osvbng Healthy    bng1    ${lab-name}
-    Start VPP Trace    ${bng1}    ${trace-input}    200
+    Start VPP Trace    ${bng1}    ${trace-input}    100
 
 Teardown CGNAT Topology
     Run Keyword And Ignore Error    Dump VPP Trace    ${bng1}

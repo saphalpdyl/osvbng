@@ -14,15 +14,15 @@ cgnat:
 
 subscriber-groups:
     groups:
-        default:
-            access-type: ipoe
+        pppoe:
+            access-type: pppoe
             ipv4-profile: default
             ipv6-profile: default-v6
             vlans:
-                - svlan: "100-110"
+                - svlan: "200-210"
                   cvlan: any
                   interface: loop100
-            aaa-policy: default-policy
+            aaa-policy: pppoe-policy
             cgnat:
               policy: residential
 
@@ -129,8 +129,9 @@ aaa:
     auth_provider: local
     nas_identifier: osvbng
     policy:
-        - name: default-policy
-          format: $mac-address$
+        - name: pppoe-policy
+          type: ppp
+          format: $agent-remote-id$
           max_concurrent_sessions: 1
 
 plugins:

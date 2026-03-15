@@ -57,9 +57,9 @@ Verify CGNAT Pool Configured
     ${output} =    Get osvbng API Response    ${bng1}    /api/show/cgnat/pools
     Should Contain    ${output}    residential
 
-Verify Traffic Flowing
+Verify NAT Traffic Flowing
     Wait Until Keyword Succeeds    6 x    10s
-    ...    Verify Traffic Flowing    ${subscribers}    expected_flows=${session-count}
+    ...    Verify Stream Traffic Flowing    ${subscribers}    expected_flows=${session-count}
 
 Verify BNG Blaster Sessions Established
     Wait Until Keyword Succeeds    6 x    10s
