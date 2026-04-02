@@ -51,8 +51,8 @@ EOF
 
 export PATH="/usr/local/go/bin:$HOME/go/bin:$PATH"
 
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+GOBIN=/usr/local/bin go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+GOBIN=/usr/local/bin go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 # --- VPP ---
 
@@ -159,6 +159,14 @@ for mod in vrf mpls_router mpls_iptunnel dummy; do
     modprobe "$mod" 2>/dev/null || true
 done
 sysctl -p /etc/sysctl.d/99-mpls.conf 2>/dev/null || true
+
+# --- Hugepages mount ---
+
+mkdir -p /dev/hugepages
+if ! mountpoint -q /dev/hugepages; then
+    mount -t hugetlbfs -o pagesize=2M none /dev/hugepages
+fi
+grep -q hugetlbfs /etc/fstab || echo "none /dev/hugepages hugetlbfs pagesize=2M 0 0" >> /etc/fstab
 
 # --- Dev user setup ---
 
